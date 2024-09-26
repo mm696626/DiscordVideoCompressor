@@ -1,17 +1,20 @@
 package ui;
 
 import constants.FileSizeConstants;
+import io.CommandStringBuilder;
+import io.DiscordVideoCompressor;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
 
     private JButton videoFilePicker, compressVideo;
-    private JLabel targetFileSizeLabel, videoFileNameLabel, fileSizeValueLabel;
+    private JLabel targetFileSizeLabel, videoFileNameLabel, targetFileSizeValueLabel;
     private JSlider targetFileSizeSlider;
     private JTextField videoFileTextField;
     private String videoFilePath;
@@ -39,19 +42,19 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
         videoFilePicker = new JButton("Browse for Video File");
         videoFilePicker.addActionListener(this);
 
-        targetFileSizeLabel = new JLabel("Video Quality (higher values mean lower quality)");
+        targetFileSizeLabel = new JLabel("Target File Size");
         targetFileSizeSlider = new JSlider(0, 4, 1);
         targetFileSizeSlider.setPaintTicks(true);
         targetFileSizeSlider.setSnapToTicks(true);
         targetFileSizeSlider.setMajorTickSpacing(1);
         targetFileSizeSlider.setMinorTickSpacing(0);
 
-        fileSizeValueLabel = new JLabel("10 MB");
+        targetFileSizeValueLabel = new JLabel("10 MB");
 
         compressVideo = new JButton("Compress Video");
         compressVideo.addActionListener(this);
 
-        targetFileSizeSlider.addChangeListener(e -> fileSizeValueLabel.setText(FileSizeConstants.FILE_SIZES_DISPLAY[targetFileSizeSlider.getValue()]));
+        targetFileSizeSlider.addChangeListener(e -> targetFileSizeValueLabel.setText(FileSizeConstants.FILE_SIZES_DISPLAY[targetFileSizeSlider.getValue()]));
 
         setLayout(new GridBagLayout());
         gridBagConstraints = new GridBagConstraints();
@@ -62,7 +65,7 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
 
         addComponent(targetFileSizeLabel, 0, 1);
         addComponent(targetFileSizeSlider, 1, 1);
-        addComponent(fileSizeValueLabel, 2, 1);
+        addComponent(targetFileSizeValueLabel, 2, 1);
 
         addComponent(compressVideo, 2, 2);
     }
@@ -84,7 +87,17 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
         }
 
         if (e.getSource() == compressVideo) {
-
+            CommandStringBuilder commandStringBuilder = new CommandStringBuilder();
+            DiscordVideoCompressor discordVideoCompressor = new DiscordVideoCompressor();
+            try {
+                String commandString = commandStringBuilder.buildCommandString(videoFilePath);
+                boolean isVideoCompressed = discordVideoCompressor.compressVideo(commandString, videoFilePath, FileSizeConstants.FILE_SIZES[targetFileSizeSlider.getValue()]);
+                if (!isVideoCompressed) {
+                    JOptionPane.showMessageDialog(this, "Your video is already at or under the target file size");
+                }
+            } catch (IOException | InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
         }
 
     }
