@@ -91,10 +91,7 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
             DiscordVideoCompressor discordVideoCompressor = new DiscordVideoCompressor();
             try {
                 String commandString = commandStringBuilder.buildCommandString(videoFilePath);
-                boolean isVideoCompressed = discordVideoCompressor.compressVideo(commandString, videoFilePath, FileSizeConstants.FILE_SIZES[targetFileSizeSlider.getValue()]);
-                if (!isVideoCompressed) {
-                    JOptionPane.showMessageDialog(this, "Your video is already at or under the target file size");
-                }
+                discordVideoCompressor.compressVideo(commandString, videoFilePath, FileSizeConstants.FILE_SIZES[targetFileSizeSlider.getValue()], 0);
             } catch (IOException | InterruptedException ex) {
                 throw new RuntimeException(ex);
             }
