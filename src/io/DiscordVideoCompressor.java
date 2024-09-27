@@ -24,7 +24,7 @@ public class DiscordVideoCompressor {
 
         File videoFile = new File(videoFilePath);
         File backupVideoFile = new File(backupFolderPath + fileSeparator + videoFile.getName());
-        File outputVideoFile = new File(outputFolderPath + fileSeparator + getVideoFileName(videoFile) + "_c.mp4");
+        File outputVideoFile = new File(outputFolderPath + fileSeparator + getVideoFileName(videoFile) + "_compressed.mp4");
         if (outputVideoFile.exists()) {
             outputVideoFile.delete();
         }

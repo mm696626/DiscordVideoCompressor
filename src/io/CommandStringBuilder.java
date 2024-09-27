@@ -12,7 +12,7 @@ public class CommandStringBuilder {
 
         File videoFile = new File(videoFilePath);
         String videoFileName = getVideoFileName(videoFile);
-        String compressedVideoFileName = videoFileName + "_c.mp4";
+        String compressedVideoFileName = videoFileName + "_compressed.mp4";
         commandString = "ffmpeg.exe " + "-i " + "\"" + videoFilePath + "\"" + " -vf scale=" + FileSizeConstants.WIDTHS[0] + ":" + FileSizeConstants.HEIGHTS[0] + " -c:v libx264 -preset fast -c:a aac " + compressedVideoFileName + " && move " + compressedVideoFileName + " ../output/" + compressedVideoFileName;
 
         return commandString;

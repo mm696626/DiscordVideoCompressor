@@ -9,6 +9,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 
 public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
@@ -87,22 +88,37 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
         }
 
         if (e.getSource() == compressVideo) {
+
+            if (videoFileTextField.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No video was chosen!");
+                return;
+            }
+
             CommandStringBuilder commandStringBuilder = new CommandStringBuilder();
             DiscordVideoCompressor discordVideoCompressor = new DiscordVideoCompressor();
-            try {
-                String commandString = commandStringBuilder.buildCommandString(videoFilePath);
-                boolean isCompressed = discordVideoCompressor.compressVideo(commandString, videoFilePath, FileSizeConstants.FILE_SIZES[targetFileSizeSlider.getValue()], 0);
-                if (!isCompressed) {
-                    JOptionPane.showMessageDialog(this, "Video already is at or smaller than the target file size!");
-                }
-                else {
-                    JOptionPane.showMessageDialog(this, "Your video has been compressed!");
-                }
-            } catch (IOException | InterruptedException ex) {
-                throw new RuntimeException(ex);
-            }
-        }
+            File videoFile = new File(videoFilePath);
 
+            if (videoFile.exists()) {
+                try {
+                    String commandString = commandStringBuilder.buildCommandString(videoFilePath);
+                    boolean isCompressed = discordVideoCompressor.compressVideo(commandString, videoFilePath, FileSizeConstants.FILE_SIZES[targetFileSizeSlider.getValue()], 0);
+                    if (!isCompressed) {
+                        JOptionPane.showMessageDialog(this, "Video already is at or smaller than the target file size!");
+                    }
+                    else {
+                        JOptionPane.showMessageDialog(this, "Your video has been compressed!");
+                        videoFile.delete();
+                    }
+                } catch (IOException | InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+            else {
+                JOptionPane.showMessageDialog(this, "The video file you tried to compress doesn't exist!");
+            }
+
+            videoFileTextField.setText("");
+        }
     }
 
     private void addComponent(JComponent component, int gridX, int gridY) {
