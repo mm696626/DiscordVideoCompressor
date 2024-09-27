@@ -15,10 +15,13 @@ import java.io.IOException;
 public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
 
     private JButton videoFilePicker, compressVideo;
-    private JLabel targetFileSizeLabel, videoFileNameLabel, targetFileSizeValueLabel;
+    private JLabel targetFileSizeLabel, videoFileNameLabel, targetFileSizeValueLabel, startingResolutionsLabel;
     private JSlider targetFileSizeSlider;
     private JTextField videoFileTextField;
     private String videoFilePath;
+
+    private JComboBox startingResolutions;
+
 
     GridBagConstraints gridBagConstraints;
 
@@ -52,6 +55,10 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
 
         targetFileSizeValueLabel = new JLabel("10 MB");
 
+
+        startingResolutionsLabel = new JLabel("Starting Resolution to Compress To");
+        startingResolutions = new JComboBox<>(getStartingResolutions());
+
         compressVideo = new JButton("Compress Video");
         compressVideo.addActionListener(this);
 
@@ -68,7 +75,10 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
         addComponent(targetFileSizeSlider, 1, 1);
         addComponent(targetFileSizeValueLabel, 2, 1);
 
-        addComponent(compressVideo, 2, 2);
+        addComponent(startingResolutionsLabel, 0, 2);
+        addComponent(startingResolutions, 1, 2);
+
+        addComponent(compressVideo, 2, 3);
     }
 
     @Override
@@ -100,8 +110,8 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
 
             if (videoFile.exists()) {
                 try {
-                    String commandString = commandStringBuilder.buildCommandString(videoFilePath);
-                    boolean isCompressed = discordVideoCompressor.compressVideo(commandString, videoFilePath, FileSizeConstants.FILE_SIZES[targetFileSizeSlider.getValue()], 0);
+                    String commandString = commandStringBuilder.buildCommandString(videoFilePath, startingResolutions.getSelectedIndex());
+                    boolean isCompressed = discordVideoCompressor.compressVideo(commandString, videoFilePath, FileSizeConstants.FILE_SIZES[targetFileSizeSlider.getValue()], startingResolutions.getSelectedIndex());
                     if (!isCompressed) {
                         JOptionPane.showMessageDialog(this, "Video already is at or smaller than the target file size!");
                     }
@@ -125,5 +135,15 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
         gridBagConstraints.gridx = gridX;
         gridBagConstraints.gridy = gridY;
         add(component, gridBagConstraints);
+    }
+
+    private String[] getStartingResolutions() {
+        String[] startingResolutions = new String[FileSizeConstants.WIDTHS.length];
+
+        for (int i=0; i<FileSizeConstants.WIDTHS.length; i++) {
+            startingResolutions[i] = FileSizeConstants.WIDTHS[i] + "x" + FileSizeConstants.HEIGHTS[i];
+        }
+
+        return startingResolutions;
     }
 }

@@ -7,13 +7,13 @@ import java.io.IOException;
 
 public class CommandStringBuilder {
 
-    public String buildCommandString (String videoFilePath) throws IOException {
+    public String buildCommandString (String videoFilePath, int startingResolutionIndex) throws IOException {
         String commandString = "";
 
         File videoFile = new File(videoFilePath);
         String videoFileName = getVideoFileName(videoFile);
         String compressedVideoFileName = videoFileName + "_compressed.mp4";
-        commandString = "ffmpeg.exe " + "-i " + "\"" + videoFilePath + "\"" + " -vf scale=" + FileSizeConstants.WIDTHS[0] + ":" + FileSizeConstants.HEIGHTS[0] + " -c:v libx264 -preset fast -c:a aac " + compressedVideoFileName + " && move " + compressedVideoFileName + " ../output/" + compressedVideoFileName;
+        commandString = "ffmpeg.exe " + "-i " + "\"" + videoFilePath + "\"" + " -vf scale=" + FileSizeConstants.WIDTHS[startingResolutionIndex] + ":" + FileSizeConstants.HEIGHTS[startingResolutionIndex] + " -c:v libx264 -preset fast -c:a aac " + compressedVideoFileName + " && move " + compressedVideoFileName + " ../output/" + compressedVideoFileName;
 
         return commandString;
     }
