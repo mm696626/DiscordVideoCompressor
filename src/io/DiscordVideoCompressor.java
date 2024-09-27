@@ -9,7 +9,7 @@ import java.nio.file.StandardCopyOption;
 
 public class DiscordVideoCompressor {
 
-    public void compressVideo(String commandString, String videoFilePath, int targetFileSize, int iterations) throws IOException, InterruptedException {
+    public boolean compressVideo(String commandString, String videoFilePath, int targetFileSize, int retries) throws IOException, InterruptedException {
 
         File toolsFolder = new File("tools");
         String toolsFolderPath = toolsFolder.getAbsolutePath();
@@ -32,13 +32,15 @@ public class DiscordVideoCompressor {
         long videoFileSizeInBytes = videoFile.length();
 
         if (!isVideoSmallEnoughForTargetFileSize(videoFileSizeInBytes, targetFileSize)) {
-            Files.copy(videoFile.toPath(), backupVideoFile.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+            if (!backupVideoFile.exists()) {
+                Files.copy(videoFile.toPath(), backupVideoFile.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+            }
             String[] commands = {"cmd.exe", "/c", "start", "cmd.exe", "/c", "cd tools && " + commandString};
             ProcessBuilder processBuilder = new ProcessBuilder(commands);
             processBuilder.start();
         }
         else {
-            return;
+            return false;
         }
 
         while (!outputVideoFile.exists()) {
@@ -48,23 +50,26 @@ public class DiscordVideoCompressor {
 
         long outputVideoFileSizeInBytes = outputVideoFile.length();
 
-        if (!isVideoSmallEnoughForTargetFileSize(outputVideoFileSizeInBytes, targetFileSize) && iterations+1 < FileSizeConstants.WIDTHS.length) {
-            int oldWidth = FileSizeConstants.WIDTHS[iterations];
-            int oldHeight = FileSizeConstants.HEIGHTS[iterations];
+        if (!isVideoSmallEnoughForTargetFileSize(outputVideoFileSizeInBytes, targetFileSize) && retries+1 < FileSizeConstants.WIDTHS.length) {
+            int oldWidth = FileSizeConstants.WIDTHS[retries];
+            int oldHeight = FileSizeConstants.HEIGHTS[retries];
 
-            iterations++;
+            retries++;
 
             int newWidth;
             int newHeight;
 
-            newWidth = FileSizeConstants.WIDTHS[iterations];
-            newHeight = FileSizeConstants.HEIGHTS[iterations];
+            newWidth = FileSizeConstants.WIDTHS[retries];
+            newHeight = FileSizeConstants.HEIGHTS[retries];
 
             String newCommandString = commandString;
             String partToReplace = "-vf scale=" + oldWidth + ":" + oldHeight;
             String replacement = "-vf scale=" + newWidth + ":" + newHeight;
             newCommandString = newCommandString.replaceAll(partToReplace, replacement);
-            compressVideo(newCommandString, videoFilePath, targetFileSize, iterations);
+            return compressVideo(newCommandString, videoFilePath, targetFileSize, retries);
+        }
+        else {
+            return true;
         }
     }
 
