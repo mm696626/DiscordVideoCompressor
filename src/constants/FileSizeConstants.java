@@ -16,4 +16,7 @@ public class FileSizeConstants {
     //will use 480p, 360p, 240p, and 144p and after that divide by 2 for 2 more retries
     public static final int[] WIDTHS = {640, 480, 320, 192, 96, 48};
     public static final int[] HEIGHTS = {480, 360, 240, 144, 72, 36};
+
+    //frame rate of output video (optional)
+    public static final int[] FRAME_RATES = {30, 25, 24, 20, 15, 10, 5};
 }
