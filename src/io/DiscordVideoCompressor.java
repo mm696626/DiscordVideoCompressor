@@ -12,7 +12,7 @@ import java.util.Scanner;
 
 public class DiscordVideoCompressor {
 
-    public boolean compressVideo(String commandString, String videoFilePath, int targetFileSize, int retries) throws IOException, InterruptedException {
+    public boolean compressVideo(String commandString, String videoFilePath, int targetFileSize, int retries, boolean backupVideo) throws IOException, InterruptedException {
 
         double aspectRatio = getAspectRatioFromFile();
 
@@ -22,7 +22,10 @@ public class DiscordVideoCompressor {
         String backupFolderPath = toolsFolderPath.substring(0, toolsFolderPath.lastIndexOf("tools")) + "backup";
 
         createFolder(outputFolderPath);
-        createFolder(backupFolderPath);
+
+        if (backupVideo) {
+            createFolder(backupFolderPath);
+        }
 
         String fileSeparator = toolsFolderPath.substring(0, toolsFolderPath.lastIndexOf("tools"));
         fileSeparator = fileSeparator.substring(fileSeparator.length() - 1);
@@ -37,7 +40,7 @@ public class DiscordVideoCompressor {
         long videoFileSizeInBytes = videoFile.length();
 
         if (!isVideoSmallEnoughForTargetFileSize(videoFileSizeInBytes, targetFileSize)) {
-            if (!backupVideoFile.exists()) {
+            if (!backupVideoFile.exists() && backupVideo) {
                 Files.copy(videoFile.toPath(), backupVideoFile.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
             }
             String[] commands = {"cmd.exe", "/c", "start", "cmd.exe", "/c", "cd tools && " + commandString};
@@ -75,7 +78,7 @@ public class DiscordVideoCompressor {
             String partToReplace = "-vf scale=" + oldWidth + ":" + oldHeight;
             String replacement = "-vf scale=" + newWidth + ":" + newHeight;
             newCommandString = newCommandString.replaceAll(partToReplace, replacement);
-            return compressVideo(newCommandString, videoFilePath, targetFileSize, retries);
+            return compressVideo(newCommandString, videoFilePath, targetFileSize, retries, false);
         }
         else {
             return true;

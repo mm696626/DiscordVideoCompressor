@@ -21,5 +21,5 @@ public class FileSizeConstants {
     public static final double[] ASPECT_RATIOS = {4.0/3.0, 16.0/9.0, 16.0/10.0, 1.0, 21.0/9.0};
 
     //frame rate of output video (optional)
-    public static final int[] FRAME_RATES = {30, 25, 24, 20, 15, 10, 5};
+    public static final int[] FRAME_RATES = {30, 25, 24, 20, 15, 10, 5, 2};
 }
