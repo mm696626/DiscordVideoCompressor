@@ -15,14 +15,12 @@ import java.io.IOException;
 public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
 
     private JButton videoFilePicker, compressVideo;
-    private JLabel targetFileSizeLabel, videoFileNameLabel, targetFileSizeValueLabel, startingResolutionsLabel, outputFrameRateLabel;
+    private JLabel targetFileSizeLabel, videoFileNameLabel, targetFileSizeValueLabel, startingResolutionsLabel, outputFrameRateLabel, aspectRatioLabel;
     private JSlider targetFileSizeSlider;
     private JTextField videoFileTextField;
     private String videoFilePath;
 
-    private JComboBox startingResolutions;
-    private JComboBox outputFrameRates;
-
+    private JComboBox startingResolutions, outputFrameRates, aspectRatios;
 
     GridBagConstraints gridBagConstraints;
 
@@ -57,11 +55,15 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
         targetFileSizeValueLabel = new JLabel("10 MB");
 
 
-        startingResolutionsLabel = new JLabel("Starting Resolution to Compress To");
+        startingResolutionsLabel = new JLabel("Starting Resolution to Compress To (Width will be adjusted to the aspect ratio chosen)");
         startingResolutions = new JComboBox<>(getStartingResolutions());
+        startingResolutions.setSelectedIndex(2);
 
         outputFrameRateLabel = new JLabel("Output Video Frame Rate");
         outputFrameRates = new JComboBox<>(getOutputFrameRates());
+
+        aspectRatioLabel = new JLabel("Output Video Aspect Ratio");
+        aspectRatios = new JComboBox<>(getAspectRatios());
 
         compressVideo = new JButton("Compress Video");
         compressVideo.addActionListener(this);
@@ -84,6 +86,9 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
 
         addComponent(outputFrameRateLabel, 0, 3);
         addComponent(outputFrameRates, 1, 3);
+
+        addComponent(aspectRatioLabel, 0, 4);
+        addComponent(aspectRatios, 1, 4);
 
         addComponent(compressVideo, 2, 4);
     }
@@ -117,7 +122,7 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
 
             if (videoFile.exists()) {
                 try {
-                    String commandString = commandStringBuilder.buildCommandString(videoFilePath, startingResolutions.getSelectedIndex(), outputFrameRates.getSelectedIndex());
+                    String commandString = commandStringBuilder.buildCommandString(videoFilePath, startingResolutions.getSelectedIndex(), outputFrameRates.getSelectedIndex(), aspectRatios.getSelectedIndex());
                     boolean isCompressed = discordVideoCompressor.compressVideo(commandString, videoFilePath, FileSizeConstants.FILE_SIZES[targetFileSizeSlider.getValue()], startingResolutions.getSelectedIndex());
                     if (!isCompressed) {
                         JOptionPane.showMessageDialog(this, "Video already is at or smaller than the target file size!");
@@ -145,10 +150,10 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
     }
 
     private String[] getStartingResolutions() {
-        String[] startingResolutions = new String[FileSizeConstants.WIDTHS.length];
+        String[] startingResolutions = new String[FileSizeConstants.HEIGHTS.length];
 
-        for (int i=0; i<FileSizeConstants.WIDTHS.length; i++) {
-            startingResolutions[i] = FileSizeConstants.WIDTHS[i] + "x" + FileSizeConstants.HEIGHTS[i];
+        for (int i=0; i<FileSizeConstants.HEIGHTS.length; i++) {
+            startingResolutions[i] = FileSizeConstants.HEIGHTS[i] + "p";
         }
 
         return startingResolutions;
@@ -163,5 +168,16 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
         }
 
         return outputFrameRates;
+    }
+
+    private String[] getAspectRatios() {
+        String[] aspectRatios = new String[FileSizeConstants.ASPECT_RATIOS_DISPLAY.length + 1];
+
+        aspectRatios[0] = "Don't Change Aspect Ratio";
+        for (int i=1; i<=FileSizeConstants.ASPECT_RATIOS_DISPLAY.length; i++) {
+            aspectRatios[i] = FileSizeConstants.ASPECT_RATIOS_DISPLAY[i-1];
+        }
+
+        return aspectRatios;
     }
 }

@@ -13,9 +13,12 @@ public class FileSizeConstants {
     public static final int[] FILE_SIZES = {8, 10, 25, 50, 500};
     public static final int BYTES_PER_MB = 1000000;
 
-    //will use 480p, 360p, 240p, and 144p and after that divide by 2 for 2 more retries
-    public static final int[] WIDTHS = {640, 480, 320, 192, 96, 48};
-    public static final int[] HEIGHTS = {480, 360, 240, 144, 72, 36};
+    //this will calculate the width for the desired aspect ratio
+    //will use 1080p, 720p, 480p, 360p, 240p, and 144p and after that divide by 2 for 2 more retries
+    public static final int[] HEIGHTS = {1080, 720, 480, 360, 240, 144, 72, 36};
+
+    public static final String[] ASPECT_RATIOS_DISPLAY = {"4:3", "16:9", "16:10", "1:1", "21:9"};
+    public static final double[] ASPECT_RATIOS = {4.0/3.0, 16.0/9.0, 16.0/10.0, 1.0, 21.0/9.0};
 
     //frame rate of output video (optional)
     public static final int[] FRAME_RATES = {30, 25, 24, 20, 15, 10, 5};

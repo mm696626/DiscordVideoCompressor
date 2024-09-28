@@ -3,13 +3,18 @@ package io;
 import constants.FileSizeConstants;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Scanner;
 
 public class DiscordVideoCompressor {
 
     public boolean compressVideo(String commandString, String videoFilePath, int targetFileSize, int retries) throws IOException, InterruptedException {
+
+        double aspectRatio = getAspectRatioFromFile();
 
         File toolsFolder = new File("tools");
         String toolsFolderPath = toolsFolder.getAbsolutePath();
@@ -50,8 +55,8 @@ public class DiscordVideoCompressor {
 
         long outputVideoFileSizeInBytes = outputVideoFile.length();
 
-        if (!isVideoSmallEnoughForTargetFileSize(outputVideoFileSizeInBytes, targetFileSize) && retries+1 < FileSizeConstants.WIDTHS.length) {
-            int oldWidth = FileSizeConstants.WIDTHS[retries];
+        if (!isVideoSmallEnoughForTargetFileSize(outputVideoFileSizeInBytes, targetFileSize) && retries+1 < FileSizeConstants.HEIGHTS.length) {
+            int oldWidth = (int)Math.ceil(FileSizeConstants.HEIGHTS[retries] * aspectRatio);
             int oldHeight = FileSizeConstants.HEIGHTS[retries];
 
             retries++;
@@ -59,8 +64,12 @@ public class DiscordVideoCompressor {
             int newWidth;
             int newHeight;
 
-            newWidth = FileSizeConstants.WIDTHS[retries];
+            newWidth = (int)Math.ceil(FileSizeConstants.HEIGHTS[retries] * aspectRatio);
             newHeight = FileSizeConstants.HEIGHTS[retries];
+
+            if (newWidth % 2 != 0) {
+                newWidth++;
+            }
 
             String newCommandString = commandString;
             String partToReplace = "-vf scale=" + oldWidth + ":" + oldHeight;
@@ -71,6 +80,24 @@ public class DiscordVideoCompressor {
         else {
             return true;
         }
+    }
+
+    private double getAspectRatioFromFile() {
+        Scanner inputStream = null;
+        try {
+            inputStream = new Scanner(new FileInputStream("aspect_ratio.txt"));
+        } catch (FileNotFoundException e) {
+            return 4.0/3.0;
+        }
+
+        while (inputStream.hasNextLine()) {
+            String line = inputStream.nextLine();
+            inputStream.close();
+            return Double.parseDouble(line);
+        }
+
+        inputStream.close();
+        return 4.0/3.0; //if the text file somehow doesn't have an aspect ratio, then use 4:3
     }
 
     private void createFolder(String folderPath) {
