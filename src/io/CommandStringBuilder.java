@@ -4,8 +4,6 @@ import constants.FileSizeConstants;
 
 import java.io.*;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class CommandStringBuilder {
 
@@ -18,8 +16,7 @@ public class CommandStringBuilder {
 
         double aspectRatio;
         if (aspectRatioIndex == 0) {
-            String resolution = getVideoResolution(videoFilePath);
-            String[] resolutionStats = resolution.split("x");
+            String[] resolutionStats = getVideoResolution(videoFilePath);
             aspectRatio = Double.parseDouble(resolutionStats[0])/Double.parseDouble(resolutionStats[1]);
         }
         else {
@@ -75,8 +72,8 @@ public class CommandStringBuilder {
         }
     }
 
-    private String getVideoResolution(String videoFilePath) throws IOException {
-        String getResolutionCommand = "ffmpeg.exe -i" + " \"" + videoFilePath + "\"" + " 2>&1 | findstr /R \"fps\" > resolution.txt";
+    private String[] getVideoResolution(String videoFilePath) throws IOException {
+        String getResolutionCommand = "ffprobe.exe  -v error -select_streams v:0 -show_entries stream=width,height -of default=noprint_wrappers=1:nokey=1" + " \"" + videoFilePath + "\"" + " > resolution.txt";
         String[] commands = {"cmd.exe", "/c", "start", "cmd.exe", "/c", "cd tools && " + getResolutionCommand + " && move resolution.txt ../resolution.txt"};
         ProcessBuilder processBuilder = new ProcessBuilder(commands);
         processBuilder.start();
@@ -90,42 +87,26 @@ public class CommandStringBuilder {
         }
         catch (Exception e) {
             //this is a last resort if this somehow still throws an exception to use 480p
-            return "640x480";
+            return new String[]{"640", "480"};
         }
     }
 
-    private String getResolutionFromTextFile() {
+    private String[] getResolutionFromTextFile() {
         Scanner inputStream = null;
-        String resolutionString = "";
+        String[] resolutionStrings = new String[2];
+
         try {
             inputStream = new Scanner(new FileInputStream("resolution.txt"));
         } catch (FileNotFoundException e) {
-            return "";
+            return new String[]{"640", "480"};
         }
 
-        while (inputStream.hasNextLine()) {
-            String line = inputStream.nextLine();
-            String[] videoInformationLine = line.split(",");
-            //check if it starts with Stream
-            if (line.trim().startsWith("Stream")) {
-                for (int i=1; i<videoInformationLine.length; i++) {
-
-                    String regex = "\\b\\d+x\\d+\\b"; // Pattern to find resolution
-                    Pattern pattern = Pattern.compile(regex);
-                    Matcher matcher = pattern.matcher(videoInformationLine[i]);
-
-                    if (matcher.find()) {
-                        resolutionString = videoInformationLine[i].replaceAll("[^a-zA-Z0-9]", "");
-                        resolutionString = resolutionString.trim();
-                        inputStream.close();
-                        return resolutionString;
-                    }
-                }
-            }
+        for (int i=0; i<resolutionStrings.length; i++) {
+            resolutionStrings[i] = inputStream.nextLine();
         }
 
         inputStream.close();
-        return "640x480"; //if the text file somehow doesn't have a fps value, then use 30
+        return resolutionStrings;
     }
 
     private double getVideoFrameRate(String videoFilePath) throws IOException {
