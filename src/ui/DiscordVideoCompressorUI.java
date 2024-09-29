@@ -58,7 +58,7 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
 
         startingResolutionsLabel = new JLabel("Starting Resolution to Compress To (Width will be adjusted to the aspect ratio chosen)");
         startingResolutions = new JComboBox<>(getStartingResolutions());
-        startingResolutions.setSelectedIndex(2);
+        startingResolutions.setSelectedIndex(4);
 
         outputFrameRateLabel = new JLabel("Output Video Frame Rate");
         outputFrameRates = new JComboBox<>(getOutputFrameRates());

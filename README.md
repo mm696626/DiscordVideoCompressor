@@ -12,8 +12,10 @@
 * Enjoy uploading your clips to Discord!
 
 ### Disclaimers about this tool
-* This tool is Windows only due to me only knowing how to open Command Prompt at this moment
-* This tool also uses ffmpeg, so credit to them as well.
+* **This tool is Windows only due to me only knowing how to open Command Prompt at this moment**
+* This tool also uses ffmpeg and ffprobe, so credit to them as well.
+
+### Notes about how this tool works
 * This tool starts compression to 640x480 (or whatever resolution you select) and works it's way down and will use the highest quality that fits the target file size
   * In specific, this tool will use 4K, 1440p, 1080p, 720p, 480p, 360p, 240p, and 144p and after that divide by 2 for 2 more retries
   * This tool will do nothing if the video is less than the target file size
