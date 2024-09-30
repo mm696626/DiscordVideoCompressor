@@ -31,10 +31,18 @@ public class CommandStringBuilder {
             width++;
         }
 
-        commandString = "ffmpeg.exe " + "-i " + "\"" + videoFilePath + "\"" + " -vf scale=" + width + ":" + FileSizeConstants.HEIGHTS[startingResolutionIndex] + " -c:v libx264 -preset fast -c:a aac " + getVideoWithFrameRate(compressedVideoFileName, frameRateIndex, videoFilePath) + " && move " + compressedVideoFileName + " ../output/" + compressedVideoFileName;
+        if (new File("trim_settings.txt").exists()) {
+            String[] trimSettings = getTrimSettingsFromTextFile();
+            commandString = "ffmpeg.exe -ss " + trimSettings[0] + " -i " + "\"" + videoFilePath + "\"" + " -to " + trimSettings[1] + " -vf scale=" + width + ":" + FileSizeConstants.HEIGHTS[startingResolutionIndex] + " -c:v libx264 -preset fast -c:a aac " + getVideoWithFrameRate(compressedVideoFileName, frameRateIndex, videoFilePath) + " && move " + compressedVideoFileName + " ../output/" + compressedVideoFileName;
+        }
+        else {
+            commandString = "ffmpeg.exe " + "-i " + "\"" + videoFilePath + "\"" + " -vf scale=" + width + ":" + FileSizeConstants.HEIGHTS[startingResolutionIndex] + " -c:v libx264 -preset fast -c:a aac " + getVideoWithFrameRate(compressedVideoFileName, frameRateIndex, videoFilePath) + " && move " + compressedVideoFileName + " ../output/" + compressedVideoFileName;
+        }
 
         deleteFrameRateFile();
         deleteResolutionFile();
+        deleteDurationFile();
+        deleteVideoTrimFile();
 
         return commandString;
     }
@@ -50,6 +58,20 @@ public class CommandStringBuilder {
         File resolutionFile = new File("resolution.txt");
         if (resolutionFile.exists()) {
             resolutionFile.delete();
+        }
+    }
+
+    private void deleteDurationFile() {
+        File durationFile = new File("duration.txt");
+        if (durationFile.exists()) {
+            durationFile.delete();
+        }
+    }
+
+    private void deleteVideoTrimFile() {
+        File trimFile = new File("trim_settings.txt");
+        if (trimFile.exists()) {
+            trimFile.delete();
         }
     }
 
@@ -168,5 +190,23 @@ public class CommandStringBuilder {
 
         outputStream.println(aspectRatio);
         outputStream.close();
+    }
+
+    private String[] getTrimSettingsFromTextFile() {
+        Scanner inputStream = null;
+        String[] trimSettings = new String[2];
+
+        try {
+            inputStream = new Scanner(new FileInputStream("trim_settings.txt"));
+        } catch (FileNotFoundException e) {
+            return new String[]{"0", "1"};
+        }
+
+        for (int i=0; i<trimSettings.length; i++) {
+            trimSettings[i] = inputStream.nextLine();
+        }
+
+        inputStream.close();
+        return trimSettings;
     }
 }

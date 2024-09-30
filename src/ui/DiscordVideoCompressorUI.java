@@ -14,7 +14,7 @@ import java.io.IOException;
 
 public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
 
-    private JButton videoFilePicker, compressVideo;
+    private JButton videoFilePicker, compressVideo, trimVideo;
     private JLabel targetFileSizeLabel, videoFileNameLabel, targetFileSizeValueLabel, startingResolutionsLabel, outputFrameRateLabel, aspectRatioLabel, backupVideoLabel;
     private JSlider targetFileSizeSlider;
     private JCheckBox backUpVideo;
@@ -30,6 +30,8 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
     {
         setTitle("Discord Video Compressor");
         generateUI();
+        deleteVideoTrimFile();
+
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         }
@@ -55,7 +57,6 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
 
         targetFileSizeValueLabel = new JLabel("10 MB");
 
-
         startingResolutionsLabel = new JLabel("Starting Resolution to Compress To (Width will be adjusted to the aspect ratio chosen)");
         startingResolutions = new JComboBox<>(getStartingResolutions());
         startingResolutions.setSelectedIndex(4);
@@ -70,6 +71,8 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
         backUpVideo = new JCheckBox();
         backUpVideo.setSelected(true);
 
+        trimVideo = new JButton("Trim Video");
+        trimVideo.addActionListener(this);
         compressVideo = new JButton("Compress Video");
         compressVideo.addActionListener(this);
 
@@ -98,6 +101,7 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
         addComponent(backupVideoLabel, 0, 5);
         addComponent(backUpVideo, 1, 5);
 
+        addComponent(trimVideo, 1, 6);
         addComponent(compressVideo, 2, 6);
     }
 
@@ -153,6 +157,23 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
                 aspectRatioFile.delete();
             }
         }
+
+        if (e.getSource() == trimVideo) {
+            if (!videoFileTextField.getText().isEmpty() && new File(videoFilePath).exists()) {
+                VideoTrimmerUI videoTrimmerUI = null;
+                try {
+                    videoTrimmerUI = new VideoTrimmerUI(videoFilePath);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+                videoTrimmerUI.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+                videoTrimmerUI.pack();
+                videoTrimmerUI.setVisible(true);
+            }
+            else {
+                JOptionPane.showMessageDialog(this, "No video was chosen or the video chosen doesn't exist!");
+            }
+        }
     }
 
     private void addComponent(JComponent component, int gridX, int gridY) {
@@ -191,5 +212,12 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
         }
 
         return aspectRatios;
+    }
+
+    private void deleteVideoTrimFile() {
+        File trimFile = new File("trim_settings.txt");
+        if (trimFile.exists()) {
+            trimFile.delete();
+        }
     }
 }
