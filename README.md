@@ -20,3 +20,4 @@
   * In specific, this tool will use 4K, 1440p, 1080p, 720p, 480p, 360p, 240p, and 144p and after that divide by 2 for 2 more retries
   * This tool will do nothing if the video is less than the target file size
 * Optionally, you can pick the frame rate of the output video to reduce file size while having better quality
+* You can also trim your video as well to not have the whole video compressed as well
