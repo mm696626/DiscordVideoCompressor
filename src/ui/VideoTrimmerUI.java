@@ -164,7 +164,7 @@ public class VideoTrimmerUI extends JFrame implements ActionListener {
 
         durationString = inputStream.nextLine();
         inputStream.close();
-        double duration = Double.parseDouble(durationString);
+        double duration = Math.ceil(Double.parseDouble(durationString));
         return (int)duration;
     }
 
