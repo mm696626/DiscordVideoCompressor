@@ -13,7 +13,7 @@
 
 ### Disclaimers about this tool
 * **This tool is Windows only due to me only knowing how to open Command Prompt at this moment**
-* This tool also uses ffmpeg and ffprobe, so credit to them as well.
+* This tool also uses the ffmpeg suite, so credit to them as well.
 
 ### Notes about how this tool works
 * This tool starts compression to 640x480 (or whatever resolution you select) and works it's way down and will use the highest quality that fits the target file size
