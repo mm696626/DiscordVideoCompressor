@@ -15,13 +15,13 @@ import java.io.IOException;
 public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
 
     private JButton videoFilePicker, compressVideo, trimVideo;
-    private JLabel targetFileSizeLabel, videoFileNameLabel, targetFileSizeValueLabel, startingResolutionsLabel, outputFrameRateLabel, aspectRatioLabel, backupVideoLabel;
+    private JLabel targetFileSizeLabel, videoFileNameLabel, targetFileSizeValueLabel, startingResolutionsLabel, outputFrameRateLabel, aspectRatioLabel, codecLabel, backupVideoLabel;
     private JSlider targetFileSizeSlider;
     private JCheckBox backUpVideo;
     private JTextField videoFileTextField;
     private String videoFilePath;
 
-    private JComboBox startingResolutions, outputFrameRates, aspectRatios;
+    private JComboBox startingResolutions, outputFrameRates, aspectRatios, videoCodecs;
 
     GridBagConstraints gridBagConstraints;
 
@@ -57,7 +57,7 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
 
         targetFileSizeValueLabel = new JLabel("10 MB");
 
-        startingResolutionsLabel = new JLabel("Starting Resolution to Compress To (Width will be adjusted to the aspect ratio chosen)");
+        startingResolutionsLabel = new JLabel("Starting Resolution to Compress To");
         startingResolutions = new JComboBox<>(getStartingResolutions());
         startingResolutions.setSelectedIndex(4);
 
@@ -66,6 +66,9 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
 
         aspectRatioLabel = new JLabel("Output Video Aspect Ratio");
         aspectRatios = new JComboBox<>(getAspectRatios());
+
+        codecLabel = new JLabel("Output Video Codec");
+        videoCodecs = new JComboBox<>(getVideoCodecs());
 
         backupVideoLabel = new JLabel("Backup Original Video");
         backUpVideo = new JCheckBox();
@@ -98,11 +101,14 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
         addComponent(aspectRatioLabel, 0, 4);
         addComponent(aspectRatios, 1, 4);
 
-        addComponent(backupVideoLabel, 0, 5);
-        addComponent(backUpVideo, 1, 5);
+        addComponent(codecLabel, 0, 5);
+        addComponent(videoCodecs, 1, 5);
 
-        addComponent(trimVideo, 1, 6);
-        addComponent(compressVideo, 2, 6);
+        addComponent(backupVideoLabel, 0, 6);
+        addComponent(backUpVideo, 1, 6);
+
+        addComponent(trimVideo, 1, 7);
+        addComponent(compressVideo, 2, 7);
     }
 
     @Override
@@ -134,7 +140,7 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
 
             if (videoFile.exists()) {
                 try {
-                    String commandString = commandStringBuilder.buildCommandString(videoFilePath, startingResolutions.getSelectedIndex(), outputFrameRates.getSelectedIndex(), aspectRatios.getSelectedIndex());
+                    String commandString = commandStringBuilder.buildCommandString(videoFilePath, startingResolutions.getSelectedIndex(), outputFrameRates.getSelectedIndex(), aspectRatios.getSelectedIndex(), videoCodecs.getSelectedIndex());
                     boolean isCompressed = discordVideoCompressor.compressVideo(commandString, videoFilePath, FileSizeConstants.FILE_SIZES[targetFileSizeSlider.getValue()], startingResolutions.getSelectedIndex(), backUpVideo.isSelected());
                     if (!isCompressed) {
                         JOptionPane.showMessageDialog(this, "Video already is at or smaller than the target file size!");
@@ -212,6 +218,10 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
         }
 
         return aspectRatios;
+    }
+
+    private String[] getVideoCodecs() {
+        return new String[]{"H.265", "H.264"};
     }
 
     private void deleteVideoTrimFile() {

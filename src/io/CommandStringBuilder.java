@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class CommandStringBuilder {
 
-    public String buildCommandString (String videoFilePath, int startingResolutionIndex, int frameRateIndex, int aspectRatioIndex) throws IOException {
+    public String buildCommandString (String videoFilePath, int startingResolutionIndex, int frameRateIndex, int aspectRatioIndex, int codecIndex) throws IOException {
         String commandString = "";
 
         File videoFile = new File(videoFilePath);
@@ -31,12 +31,21 @@ public class CommandStringBuilder {
             width++;
         }
 
-        if (new File("trim_settings.txt").exists()) {
-            String[] trimSettings = getTrimSettingsFromTextFile();
-            commandString = "ffmpeg.exe -ss " + trimSettings[0] + " -i " + "\"" + videoFilePath + "\"" + " -to " + trimSettings[1] + " -vf scale=" + width + ":" + FileSizeConstants.HEIGHTS[startingResolutionIndex] + " -c:v libx264 -preset fast -c:a aac " + getVideoWithFrameRate(compressedVideoFileName, frameRateIndex, videoFilePath) + " && move " + compressedVideoFileName + " ../output/" + compressedVideoFileName;
+        String codecString;
+
+        if (codecIndex == 0) {
+            codecString = " -c:v libx265 -preset fast -c:a aac ";
         }
         else {
-            commandString = "ffmpeg.exe " + "-i " + "\"" + videoFilePath + "\"" + " -vf scale=" + width + ":" + FileSizeConstants.HEIGHTS[startingResolutionIndex] + " -c:v libx264 -preset fast -c:a aac " + getVideoWithFrameRate(compressedVideoFileName, frameRateIndex, videoFilePath) + " && move " + compressedVideoFileName + " ../output/" + compressedVideoFileName;
+            codecString = " -c:v libx264 -preset fast -c:a aac ";
+        }
+
+        if (new File("trim_settings.txt").exists()) {
+            String[] trimSettings = getTrimSettingsFromTextFile();
+            commandString = "ffmpeg.exe -ss " + trimSettings[0] + " -i " + "\"" + videoFilePath + "\"" + " -to " + trimSettings[1] + " -vf scale=" + width + ":" + FileSizeConstants.HEIGHTS[startingResolutionIndex] + codecString + getVideoWithFrameRate(compressedVideoFileName, frameRateIndex, videoFilePath) + " && move " + compressedVideoFileName + " ../output/" + compressedVideoFileName;
+        }
+        else {
+            commandString = "ffmpeg.exe " + "-i " + "\"" + videoFilePath + "\"" + " -vf scale=" + width + ":" + FileSizeConstants.HEIGHTS[startingResolutionIndex] + codecString + getVideoWithFrameRate(compressedVideoFileName, frameRateIndex, videoFilePath) + " && move " + compressedVideoFileName + " ../output/" + compressedVideoFileName;
         }
 
         deleteFrameRateFile();

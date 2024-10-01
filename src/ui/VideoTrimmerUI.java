@@ -85,14 +85,14 @@ public class VideoTrimmerUI extends JFrame implements ActionListener {
             int endingTime = endTimeSlider.getValue();
 
             int durationOfPlayback = endingTime - startingTime;
-            if (durationOfPlayback <= 0) {
+            if (durationOfPlayback <= 0 || durationOfPlayback >= videoDuration) {
                 invalidParameters = true;
-                JOptionPane.showMessageDialog(this, "Invalid Preview Parameters. Please try again!");
+                JOptionPane.showMessageDialog(this, "Invalid Trim Parameters. Please try again!");
                 return;
             }
 
             invalidParameters = false;
-            String previewVideoCommand = "ffplay.exe -fs -ss " + startingTime + " -t " + durationOfPlayback + " \"" + videoFilePath + "\"";
+            String previewVideoCommand = "ffplay.exe -autoexit -fs -ss " + startingTime + " -t " + durationOfPlayback + " \"" + videoFilePath + "\"";
             String[] commands = {"cmd.exe", "/c", "start", "cmd.exe", "/c", "cd tools && " + previewVideoCommand};
             ProcessBuilder processBuilder = new ProcessBuilder(commands);
             try {
@@ -105,7 +105,7 @@ public class VideoTrimmerUI extends JFrame implements ActionListener {
         if (e.getSource() == saveTrimSettings) {
 
             if (invalidParameters) {
-                JOptionPane.showMessageDialog(this, "Invalid Preview Parameters. Please try again!");
+                JOptionPane.showMessageDialog(this, "Invalid Trim Parameters. Please try again!");
                 return;
             }
 
@@ -170,7 +170,8 @@ public class VideoTrimmerUI extends JFrame implements ActionListener {
 
     private void setStartText() {
         startTimeSliderValueLabel.setText(String.valueOf(startTimeSlider.getValue()));
-        if (endTimeSlider.getValue() - startTimeSlider.getValue() <= 0) {
+        int trimmedVideoDuration = endTimeSlider.getValue() - startTimeSlider.getValue();
+        if (trimmedVideoDuration <= 0 || trimmedVideoDuration >= videoDuration) {
             invalidParameters = true;
         }
         else {
@@ -180,7 +181,8 @@ public class VideoTrimmerUI extends JFrame implements ActionListener {
 
     private void setEndText() {
         endTimeSliderValueLabel.setText(String.valueOf(endTimeSlider.getValue()));
-        if (endTimeSlider.getValue() - startTimeSlider.getValue() <= 0) {
+        int trimmedVideoDuration = endTimeSlider.getValue() - startTimeSlider.getValue();
+        if (trimmedVideoDuration <= 0 || trimmedVideoDuration >= videoDuration) {
             invalidParameters = true;
         }
         else {
