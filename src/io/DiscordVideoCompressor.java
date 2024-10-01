@@ -62,6 +62,10 @@ public class DiscordVideoCompressor {
             int oldWidth = (int)Math.ceil(FileSizeConstants.HEIGHTS[retries] * aspectRatio);
             int oldHeight = FileSizeConstants.HEIGHTS[retries];
 
+            if (oldWidth % 2 != 0) {
+                oldWidth++;
+            }
+
             retries++;
 
             int newWidth;
