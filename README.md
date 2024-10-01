@@ -21,3 +21,4 @@
   * This tool will do nothing if the video is less than the target file size
 * Optionally, you can pick the frame rate of the output video to reduce file size while having better quality
 * You can also trim your video as well to not have the whole video compressed as well
+* H.265 codec only works on desktop at the moment of me making this, but it compresses better (H.264 is selected by default)

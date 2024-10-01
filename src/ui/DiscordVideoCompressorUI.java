@@ -69,6 +69,7 @@ public class DiscordVideoCompressorUI extends JFrame implements ActionListener {
 
         codecLabel = new JLabel("Output Video Codec");
         videoCodecs = new JComboBox<>(getVideoCodecs());
+        videoCodecs.setSelectedIndex(1);
 
         backupVideoLabel = new JLabel("Backup Original Video");
         backUpVideo = new JCheckBox();
